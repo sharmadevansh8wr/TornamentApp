@@ -1815,10 +1815,10 @@ https:ct.ws/`;
 
         function handleContactUs() {
             if (!currentUser) { alert("Please login to contact us."); return; }
-            const contactNumber = appSettings.supportContact || '9389660753';
+            const contactNumber = appSettings.supportContact || '@DARK_DEVIL_BHAI';
             const userName = userProfile.displayName || "a user";
             const message = `Hello Sir I Am ${userName} I need your help.`;
-            const whatsappUrl = `https://wa.me/${contactNumber}?text=${encodeURIComponent(message)}`;
+            const whatsappUrl = `https://t.me/${contactNumber}?text=${encodeURIComponent(message)}`;
             window.open(whatsappUrl, '_blank');
         }
         
