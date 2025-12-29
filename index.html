@@ -1275,14 +1275,14 @@
         
         function shareReferral(code) {
             if (!code || code === 'N/A') { alert('Referral code not available.'); return; }
-            const appName = appSettings.appName || "Battle Raja";
+            const appName = appSettings.appName || "Bharat Esports";
             const signupBonus = appSettings.signupBonus || 10;
             const referralBonus = appSettings.referralBonus || 5;
 
             const shareText = 
 `Free Fire tournament App🚨
 
-App Name - ${Bharat Esports}
+App Name - ${appName}
 Free Joining ✅
 Sign up Bonus - ₹${signupBonus}💸
 Per Refer - ₹${referralBonus} 🌟
@@ -1291,7 +1291,7 @@ Fast Join Free
 Use Code - ( ${code} ) Free ₹${signupBonus} 😀
 
 Download 👇
-https://ct.ws/`;
+https://bharatesports.gt.tc/`;
 
             if (navigator.share) {
                  navigator.share({
