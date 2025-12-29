@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Gaming Tournament</title>
+    <title>Bharat Esports</title>
 
     <!-- Icons and Fonts -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -463,18 +463,74 @@
             line-height: 1;
             padding: 0 5px;
         }
+
+        /* NEW AVATAR UPLOAD STYLES */
+        .avatar-upload-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+        }
+        .avatar-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--accent-color);
+            background-color: var(--primary-bg);
+        }
+        .avatar-upload-overlay {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--accent-gradient);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid var(--primary-bg);
+        }
+        .avatar-upload-overlay i {
+            color: var(--primary-bg);
+            font-size: 1.2rem;
+        }
+        #avatarUploadInput {
+            display: none;
+        }
+        .avatar-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .avatar-option {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid var(--border-color);
+            transition: border-color 0.2s;
+        }
+        .avatar-option:hover, .avatar-option.selected {
+            border-color: var(--accent-color);
+        }
     </style>
 </head>
 
 <body>
 
     <!-- Audio Elements for Background Music and Click Sound -->
-<audio id="backgroundMusic" loop>
-    <source src="audio/Free Fire _ Halloween Update _ Theme Song(MP3_160K).mp3" type="audio/mpeg">
-</audio>
-<audio id="clickSound">
-    <source src="audio/click.mp3" type="audio/mpeg">
-</audio>
+    <audio id="backgroundMusic" loop>
+        <source src="audio/Free Fire _ Halloween Update _ Theme Song(MP3_160K).mp3" type="audio/mpeg">
+    </audio>
+    <audio id="clickSound">
+        <source src="audio/click.mp3" type="audio/mpeg">
+    </audio>
 
      <!-- Firebase Security Rules Warning -->
     <div id="securityWarning" style="display: none;">
@@ -487,8 +543,8 @@
     <header class="app-header">
         <div class="header-left">
             <button class="header-back-button" id="headerBackBtnEl"><i class="bi bi-arrow-left"></i></button>
-            <img src=".jpg" alt="Logo" class="header-logo" id="appLogoEl">
-            <div class="header-title" id="headerTitleContainerEl"> NK E SPORTS <span id="headerUserGreetingEl">Guest</span> </div>
+            <img src="https://i.supaimg.com/5a4dd256-e556-4477-a574-6c6945e5906e.jpg" alt="Logo" class="header-logo" id="appLogoEl">
+            <div class="header-title" id="headerTitleContainerEl"> Bharat  Esports<span id="headerUserGreetingEl">Guest</span> </div>
             <div class="header-game-title" id="headerGameTitleEl">Game Title</div>
         </div>
         <div class="header-right">
@@ -536,7 +592,7 @@
             <!-- Announcement Card -->
             <div class="announcement-card">
                 <h5 class="mb-1">Announcement:</h5>
-                <p class="mb-0 small">CLICK HERE !! ★ KNOW ALL THE RULES AND REGULATIONS ★ ANY RULE BREAK = DIRECT BAN WITHOUT NOTICE ★ NK E SPORTS</p>
+                <p class="mb-0 small">CLICK HERE !! ★ KNOW ALL THE RULES AND REGULATIONS ★ ANY RULE BREAK = DIRECT BAN WITHOUT NOTICE ★ Bharat Esports</p>
             </div>
 
             <!-- Promotion Slider -->
@@ -675,7 +731,19 @@
                 <p class="profile-email" id="profileEmailEl"><span class="placeholder col-8"></span></p>
                 <div class="profile-stats w-100">
                     <div class="stat-item">
-               
+                        <strong id="profileTotalMatchesEl"><span class="placeholder col-3"></span></strong>
+                        <span>Matches</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong id="profileWonMatchesEl"><span class="placeholder col-3"></span></strong>
+                        <span>Won</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong id="profileTotalEarningsEl"><span class="placeholder col-3"></span></strong>
+                        <span>Earnings</span>
+                    </div>
+                </div>
+            </div>
             <div class="profile-links">
                 <div class="list-group custom-card">
                     <label class="list-group-item list-group-item-action d-flex justify-content-between align-items-center interactive-list-item"> <span><i class="bi bi-bell-fill"></i> Notifications</span> <div class="form-check form-switch"> <input class="form-check-input" type="checkbox" role="switch" id="notificationSwitchEl" checked> </div> </label>
@@ -770,10 +838,10 @@
                 <div class="payment-details-card d-flex align-items-center justify-content-between mb-4">
                     <div>
                         <p class="text-secondary mb-1">Payment Mode : <strong class="text-primary" id="rechargePaymentMode">PhonePe</strong></p>
-                        <p class="mb-0">Upi id : <strong class="text-accent" id="rechargeUpiId">aashif4412@ibl</strong></p>
+                        <p class="mb-0">Upi id : <strong class="text-accent" id="rechargeUpiId">devansh7999@ybl</strong></p>
                     </div>
                     <div class="qr-code-container">
-                        <img src="https://iili.io/FsMJsRV.md.png" alt="QR Code" id="rechargeQrCodeImg">
+                        <img src="https://i.supaimg.com/788284bc-d3e0-4116-b579-89d26ceded68.png" alt="QR Code" id="rechargeQrCodeImg">
                     </div>
                 </div>
                 <div class="d-grid grid-cols-2 gap-2 mb-4" style="grid-template-columns: 1fr 1fr;">
@@ -939,18 +1007,29 @@
         </div>
     </div>
 
-    <!-- NEW EDIT NAME MODAL -->
+    <!-- NEW EDIT NAME & AVATAR MODAL -->
     <div class="modal fade" id="editNameModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Change Your Name</h5>
+                    <h5 class="modal-title">Edit Profile</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
+                    <div class="avatar-upload-container">
+                        <img src="https://via.placeholder.com/80" alt="Avatar" class="avatar-preview" id="avatarPreviewEl">
+                        <div class="avatar-upload-overlay" id="avatarUploadBtn">
+                            <i class="bi bi-camera-fill"></i>
+                        </div>
+                        <input type="file" id="avatarUploadInput" accept="image/*">
+                    </div>
+                    <div class="avatar-options" id="avatarOptionsContainer">
+                        <!-- Default avatar options will be loaded here -->
+                    </div>
+                    
                     <form id="editNameForm">
                         <div class="mb-3">
-                            <label for="editNameInput" class="form-label">New Name</label>
+                            <label for="editNameInput" class="form-label">Name</label>
                             <input type="text" class="form-control" id="editNameInput" required>
                         </div>
                         <div id="editNameStatusMessage" class="alert" style="display: none;"></div>
@@ -958,7 +1037,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-custom btn-custom-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-custom btn-custom-primary" id="saveNameChangeBtn">Save</button>
+                    <button type="button" class="btn btn-custom btn-custom-primary" id="saveNameChangeBtn">Save Changes</button>
                 </div>
             </div>
         </div>
@@ -986,14 +1065,14 @@
         import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 
         const firebaseConfig = {
-  apiKey: "AIzaSyBdhNc2L1OPQKy6pf06RG2kRlsxogBaSh4",
-  authDomain: "tornamentapp-bb2a1.firebaseapp.com",
-  databaseURL: "https://tornamentapp-bb2a1-default-rtdb.firebaseio.com",
-  projectId: "tornamentapp-bb2a1",
-  storageBucket: "tornamentapp-bb2a1.firebasestorage.app",
-  messagingSenderId: "62841964176",
-  appId: "1:62841964176:web:24b0c8c336ac0b0f16ba15",
-  measurementId: "G-8LQF0EG3HF"
+            apiKey: "AIzaSyBdhNc2L1OPQKy6pf06RG2kRlsxogBaSh4",
+            authDomain: "tornamentapp-bb2a1.firebaseapp.com",
+            databaseURL: "https://tornamentapp-bb2a1-default-rtdb.firebaseio.com",
+            projectId: "tornamentapp-bb2a1",
+            storageBucket: "tornamentapp-bb2a1.firebasestorage.app",
+            messagingSenderId: "62841964176",
+            appId: "1:62841964176:web:24b0c8c336ac0b0f16ba15",
+            measurementId: "G-8LQF0EG3HF"
         };
 
         let app, db, auth;
@@ -1062,6 +1141,11 @@
              replyToNameEl: getElement('replyToNameEl'),
              replyToMessageEl: getElement('replyToMessageEl'),
              cancelReplyBtn: getElement('cancelReplyBtn'),
+             // Avatar Upload Elements
+             avatarPreviewEl: getElement('avatarPreviewEl'),
+             avatarUploadInput: getElement('avatarUploadInput'),
+             avatarUploadBtn: getElement('avatarUploadBtn'),
+             avatarOptionsContainer: getElement('avatarOptionsContainer'),
          };
 
         let currentUser = null; let userProfile = {}; let currentSectionId = 'login-section'; let dbListeners = {};
@@ -1070,15 +1154,20 @@
         let currentRechargeData = { amount: 0, paymentMethod: null, upiId: null };
         let currentChatListener = null; 
         let currentReply = null; // Holds data for the message being replied to
+        let selectedAvatarUrl = null; // Stores selected avatar URL
 
         const showLoader = (show) => { if (elements.globalLoader) elements.globalLoader.style.display = show ? 'flex' : 'none'; };
         function showStatusMessage(element, message, type = 'danger', autohide = true) { if (!element) return; element.innerHTML = message; element.className = `alert alert-${type} mt-3`; element.style.display = 'block'; element.setAttribute('role', 'alert'); if (autohide) { setTimeout(() => { if (element.innerHTML === message) element.style.display = 'none'; }, 5000); } }
         function clearStatusMessage(element) { if (!element) return; element.style.display = 'none'; element.innerHTML = ''; element.removeAttribute('role'); }
-        function copyToClipboard(targetSelectorOrText, isText = false) { let textToCopy; if (isText) { textToCopy = targetSelectorOrText; } else { if (!targetSelectorOrText) { alert('Copy target not defined.'); return; } const targetElement = querySel(targetSelectorOrText); if (!targetElement) { alert('Element to copy from not found.'); return; } textToCopy = targetElement.textContent; } if (!textToCopy || textToCopy === 'N/A' || textToCopy.includes('placeholder')) { alert('Nothing to copy.'); return; } navigator.clipboard.writeText(textToCopy).then(() => alert('Copied!')).catch(err => { console.error('Failed to copy:', err); alert('Failed to copy.'); }); }
         
+        // UPDATED UNIVERSAL SHARE FUNCTION - Works in APK, Browser, GitHub
         function shareReferral(code) {
-            if (!code || code === 'N/A') { alert('Referral code not available.'); return; }
-            const appName = appSettings.appName || "Battle Raja";
+            if (!code || code === 'N/A') { 
+                alert('Referral code not available.'); 
+                return; 
+            }
+            
+            const appName = appSettings.appName || "Bharat Esports";
             const signupBonus = appSettings.signupBonus || 10;
             const referralBonus = appSettings.referralBonus || 5;
 
@@ -1093,18 +1182,44 @@ Fast Join Free
 
 Use Code - ( ${code} ) Free ₹${signupBonus} 😀
 
-Download 👇
-https:ct.ws/`;
+Download 👇`;
 
-            if (navigator.share) {
-                 navigator.share({
-                    title: `Join ${appName}!`,
-                    text: shareText
-                }).catch((error) => console.log('Error sharing', error));
-            } else {
-                const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
-                window.open(whatsappUrl, '_blank');
+            // Universal share method that works in APK, Browser, and GitHub
+            try {
+                // Check if we're in a web view (APK)
+                if (window.Android && typeof window.Android.shareText === 'function') {
+                    // Android APK bridge
+                    window.Android.shareText(shareText);
+                } 
+                // Check if Web Share API is available (modern browsers)
+                else if (navigator.share) {
+                    navigator.share({
+                        title: `Join ${appName}!`,
+                        text: shareText,
+                        url: window.location.href
+                    }).catch((error) => {
+                        // Fallback to WhatsApp
+                        fallbackToWhatsApp(shareText);
+                    });
+                } 
+                // Check if we're in iOS WebView
+                else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.share) {
+                    window.webkit.messageHandlers.share.postMessage(shareText);
+                }
+                // Fallback for all other cases
+                else {
+                    fallbackToWhatsApp(shareText);
+                }
+            } catch (error) {
+                console.log('Error sharing:', error);
+                fallbackToWhatsApp(shareText);
             }
+        }
+
+        // Fallback to WhatsApp sharing
+        function fallbackToWhatsApp(shareText) {
+            const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+            window.open(whatsappUrl, '_blank');
         }
 
         function generateReferralCode(length = 8) { const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'; let result = ''; for (let i = 0; i < length; i++) result += chars.charAt(Math.floor(Math.random() * chars.length)); return result; }
@@ -1143,7 +1258,7 @@ https:ct.ws/`;
             if (elements.headerTitleContainer) {
                 elements.headerTitleContainer.style.display = defaultTitleVisible ? 'flex' : 'none';
                 if(isHomePage) {
-                    elements.headerTitleContainer.innerHTML = 'NK E SPORTS';
+                    elements.headerTitleContainer.innerHTML = ' Bharat Esports';
                 } else {
                     elements.headerTitleContainer.innerHTML = `Welcome <span id="headerUserGreetingEl">Guest</span>`;
                 }
@@ -1169,10 +1284,67 @@ https:ct.ws/`;
             }
         }
          function updateGlobalUI(isLoggedIn) { if (elements.headerWalletChip) { elements.headerWalletChip.style.display = isLoggedIn ? 'flex' : 'none'; if (isLoggedIn) elements.headerWalletChip.onclick = () => showSection('wallet-section'); else elements.headerWalletChip.onclick = null; } if (!isLoggedIn && getElement('headerUserGreetingEl')) getElement('headerUserGreetingEl').textContent = 'Guest'; if (!isLoggedIn && elements.headerChipBalance) elements.headerChipBalance.textContent = '0'; elements.bottomNavItems.forEach(item => { const section = item.dataset.section; item.style.display = (section === 'home-section' || isLoggedIn) ? 'flex' : 'none'; }); }
-         function populateUserInfo(user, profile) { if (!user || !profile) return; const displayName = profile.displayName || user.email?.split('@')[0] || 'User'; const photoURL = profile.photoURL || user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=2c3e50&color=E2E8F0&bold=true&size=80`; const balance = (profile.balance || 0); const winningCash = (profile.winningCash || 0); const bonusCash = (profile.bonusCash || 0); const totalEarnings = (profile.totalEarnings || 0); const referralEarnings = (profile.referralEarnings || 0); const totalMatches = profile.totalMatches || 0; const wonMatches = profile.wonMatches || 0; const formatCurrency = (amount) => `${amount.toFixed(2)}`; 
-         const headerGreetingEl = getElement('headerUserGreetingEl');
-         if (headerGreetingEl) headerGreetingEl.textContent = displayName.split(' ')[0];
-         if (elements.headerChipBalance) elements.headerChipBalance.textContent = Math.floor(balance); if (elements.walletTotalBalance) { elements.walletTotalBalance.textContent = `₹${formatCurrency(balance)}`; removePlaceholders(elements.walletTotalBalance.closest('.placeholder-glow')); } if (elements.walletWinningCash) { elements.walletWinningCash.textContent = `₹${formatCurrency(winningCash)}`; removePlaceholders(elements.walletWinningCash.closest('.placeholder-glow')); } if (elements.walletBonusCash) { elements.walletBonusCash.textContent = `₹${formatCurrency(bonusCash)}`; removePlaceholders(elements.walletBonusCash.closest('.placeholder-glow')); } if (elements.withdrawModalBalance) elements.withdrawModalBalance.textContent = `₹${formatCurrency(winningCash)}`; if (elements.rechargeBalanceDisplay) elements.rechargeBalanceDisplay.textContent = formatCurrency(balance); if (elements.profileAvatar) elements.profileAvatar.src = photoURL; if (elements.profileName) { elements.profileName.textContent = displayName; removePlaceholders(elements.profileName.closest('.placeholder-glow')); } if (elements.profileEmail) { elements.profileEmail.textContent = user.email || 'N/A'; removePlaceholders(elements.profileEmail.closest('.placeholder-glow')); } if (elements.profileTotalMatches) { elements.profileTotalMatches.textContent = totalMatches; removePlaceholders(elements.profileTotalMatches.closest('.placeholder-glow')); } if (elements.profileWonMatches) { elements.profileWonMatches.textContent = wonMatches; removePlaceholders(elements.profileWonMatches.closest('.placeholder-glow')); } if (elements.profileTotalEarnings) { elements.profileTotalEarnings.textContent = `₹${formatCurrency(profile.totalEarnings || 0)}`; removePlaceholders(elements.profileTotalEarnings.closest('.placeholder-glow')); } if (elements.earningsTotal) { elements.earningsTotal.textContent = `₹${formatCurrency(totalEarnings)}`; removePlaceholders(elements.earningsTotal.closest('.placeholder-glow')); } if (elements.earningsReferral) { elements.earningsReferral.textContent = `₹${formatCurrency(referralEarnings)}`; removePlaceholders(elements.earningsReferral.closest('.placeholder-glow')); } if (elements.modalUserEmail) elements.modalUserEmail.textContent = user.email || 'N/A'; }
+         function populateUserInfo(user, profile) { 
+            if (!user || !profile) return; 
+            const displayName = profile.displayName || user.email?.split('@')[0] || 'User'; 
+            const photoURL = profile.photoURL || user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=2c3e50&color=E2E8F0&bold=true&size=80`; 
+            const balance = (profile.balance || 0); 
+            const winningCash = (profile.winningCash || 0); 
+            const bonusCash = (profile.bonusCash || 0); 
+            const totalEarnings = (profile.totalEarnings || 0); 
+            const referralEarnings = (profile.referralEarnings || 0); 
+            const totalMatches = profile.totalMatches || 0; 
+            const wonMatches = profile.wonMatches || 0; 
+            const formatCurrency = (amount) => `${amount.toFixed(2)}`; 
+         
+            const headerGreetingEl = getElement('headerUserGreetingEl');
+            if (headerGreetingEl) headerGreetingEl.textContent = displayName.split(' ')[0];
+            if (elements.headerChipBalance) elements.headerChipBalance.textContent = Math.floor(balance); 
+            if (elements.walletTotalBalance) { 
+                elements.walletTotalBalance.textContent = `₹${formatCurrency(balance)}`; 
+                removePlaceholders(elements.walletTotalBalance.closest('.placeholder-glow')); 
+            } 
+            if (elements.walletWinningCash) { 
+                elements.walletWinningCash.textContent = `₹${formatCurrency(winningCash)}`; 
+                removePlaceholders(elements.walletWinningCash.closest('.placeholder-glow')); 
+            } 
+            if (elements.walletBonusCash) { 
+                elements.walletBonusCash.textContent = `₹${formatCurrency(bonusCash)}`; 
+                removePlaceholders(elements.walletBonusCash.closest('.placeholder-glow')); 
+            } 
+            if (elements.withdrawModalBalance) elements.withdrawModalBalance.textContent = `₹${formatCurrency(winningCash)}`; 
+            if (elements.rechargeBalanceDisplay) elements.rechargeBalanceDisplay.textContent = formatCurrency(balance); 
+            if (elements.profileAvatar) elements.profileAvatar.src = photoURL; 
+            if (elements.profileName) { 
+                elements.profileName.textContent = displayName; 
+                removePlaceholders(elements.profileName.closest('.placeholder-glow')); 
+            } 
+            if (elements.profileEmail) { 
+                elements.profileEmail.textContent = user.email || 'N/A'; 
+                removePlaceholders(elements.profileEmail.closest('.placeholder-glow')); 
+            } 
+            if (elements.profileTotalMatches) { 
+                elements.profileTotalMatches.textContent = totalMatches; 
+                removePlaceholders(elements.profileTotalMatches.closest('.placeholder-glow')); 
+            } 
+            if (elements.profileWonMatches) { 
+                elements.profileWonMatches.textContent = wonMatches; 
+                removePlaceholders(elements.profileWonMatches.closest('.placeholder-glow')); 
+            } 
+            if (elements.profileTotalEarnings) { 
+                elements.profileTotalEarnings.textContent = `₹${formatCurrency(profile.totalEarnings || 0)}`; 
+                removePlaceholders(elements.profileTotalEarnings.closest('.placeholder-glow')); 
+            } 
+            if (elements.earningsTotal) { 
+                elements.earningsTotal.textContent = `₹${formatCurrency(totalEarnings)}`; 
+                removePlaceholders(elements.earningsTotal.closest('.placeholder-glow')); 
+            } 
+            if (elements.earningsReferral) { 
+                elements.earningsReferral.textContent = `₹${formatCurrency(referralEarnings)}`; 
+                removePlaceholders(elements.earningsReferral.closest('.placeholder-glow')); 
+            } 
+            if (elements.modalUserEmail) elements.modalUserEmail.textContent = user.email || 'N/A'; 
+         }
         function toggleLoginForm(showLogin) { if (!elements.emailLoginForm || !elements.emailSignupForm) return; clearStatusMessage(elements.loginStatusMessage); clearStatusMessage(elements.signupStatusMessage); elements.emailLoginForm.style.display = showLogin ? 'block' : 'none'; elements.emailSignupForm.style.display = showLogin ? 'none' : 'block'; elements.emailLoginForm.reset(); elements.emailSignupForm.reset(); }
         async function signUpWithEmail() { if (!auth) return; const name = elements.signupNameInput.value.trim(); const em = elements.signupEmailInput.value.trim(); const pw = elements.signupPasswordInput.value; if (!name || !em || !pw) { showStatusMessage(elements.signupStatusMessage, 'Name, Email and Password are required.', 'warning'); return; } if (pw.length < 6) { showStatusMessage(elements.signupStatusMessage, 'Password must be at least 6 characters.', 'warning'); return; } showLoader(true); clearStatusMessage(elements.signupStatusMessage); try { tempReferralCode = elements.signupReferralCodeInput.value.trim(); const cred = await createUserWithEmailAndPassword(auth, em, pw); await update(ref(db, `users/${cred.user.uid}`), { displayName: name }); } catch (e) { console.error("Signup Error:", e); let m = `Signup failed.`; switch (e.code) { case 'auth/email-already-in-use': m = 'Email already registered.'; break; case 'auth/weak-password': m = 'Password too weak.'; break; case 'auth/invalid-email': m = 'Invalid email.'; break; case 'auth/network-request-failed': m = 'Network error.'; break; default: m = `Error: ${e.message}`; } showStatusMessage(elements.signupStatusMessage, m, 'danger'); } finally { showLoader(false); } }
         async function loginWithEmail() { if (!auth) return; const em = elements.loginEmailInput.value.trim(); const pw = elements.loginPasswordInput.value; if (!em || !pw) { showStatusMessage(elements.loginStatusMessage, 'Enter email & password.', 'warning'); return; } showLoader(true); clearStatusMessage(elements.loginStatusMessage); try { await signInWithEmailAndPassword(auth, em, pw); } catch (e) { console.error("Login Error:", e); let m = `Login failed.`; switch (e.code) { case 'auth/user-not-found': case 'auth/wrong-password': case 'auth/invalid-credential': m = 'Invalid email or password.'; break; case 'auth/invalid-email': m = 'Invalid email format.'; break; case 'auth/too-many-requests': m = 'Too many attempts. Reset pass or wait.'; break; case 'auth/network-request-failed': m = 'Network error.'; break; case 'auth/user-disabled': m = 'Account disabled.'; break; default: m = `Error: ${e.message}`; } showStatusMessage(elements.loginStatusMessage, m, 'danger'); } finally { showLoader(false); } }
@@ -1274,8 +1446,9 @@ https:ct.ws/`;
                         signupBonus: 10, 
                         referralBonus: 5, 
                         supportContact: '9389660753', 
-                        upiDetails: 'aashif4412@ibl',
-                        qrCodeUrl: 'https://iili.io/FsMJsRV.md.png'
+                        upiDetails: 'devansh7999@ybl',
+                        qrCodeUrl: 'https://i.supaimg.com/788284bc-d3e0-4116-b579-89d26ceded68.png',
+                        telegramLink: 'http://t.me/DARK_DEVIL_BHAI'
                     };
                 }
             } catch (e) {
@@ -1285,8 +1458,9 @@ https:ct.ws/`;
                     signupBonus: 10, 
                     referralBonus: 5, 
                     supportContact: '9389660753',
-                    upiDetails: 'aashif4412@ibl',
-                    qrCodeUrl: 'https://iili.io/FsMJsRV.md.png'
+                    upiDetails: 'devansh7999@ybl',
+                    qrCodeUrl: 'https://i.supaimg.com/788284bc-d3e0-4116-b579-89d26ceded68.png',
+                    telegramLink: 'http://t.me/DARK_DEVIL_BHAI'
                 };
             }
         }
@@ -1538,9 +1712,186 @@ https:ct.ws/`;
             }
         }
         async function handleMatchDetailsClick(event) { if (!elements.matchDetailsModalInstance) return; const tId = event.currentTarget.dataset.tournamentId; if (!tId) return; elements.matchDetailsModalTitle.textContent = 'Loading...'; elements.matchDetailsModalBody.innerHTML = '<div class="tc p-5"><div class="spinner-border spinner-border-sm"></div></div>'; elements.matchDetailsModalInstance.show(); try { const tRef = ref(db, `tournaments/${tId}`); const s = await get(tRef); if (s.exists()) { const t = s.val(); const gName = appSettings.games?.[t.gameId]?.name || t.gameId || 'N/A'; const sTimeLoc = t.startTime ? new Date(t.startTime).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short'}) : 'TBA'; let pDistHTML = ''; if (t.prizeDistribution) { let fmtDist = ''; if (typeof t.prizeDistribution === 'object') { fmtDist = Object.entries(t.prizeDistribution).map(([rank, prize]) => `Rank ${rank}: ₹${prize}`).join('\n'); } else { fmtDist = String(t.prizeDistribution).replace(/\\n/g, '\n'); } pDistHTML = `<h5>Prize Distribution:</h5><pre>${fmtDist}</pre>`; } const desc = t.description || 'Standard rules apply.'; const fmtDesc = desc.replace(/\n/g, '<br>'); elements.matchDetailsModalTitle.textContent = t.name || 'Match Details'; elements.matchDetailsModalBody.innerHTML = `<p><strong>Game:</strong> ${gName}</p><p><strong>Mode:</strong> ${t.mode || 'N/A'}</p><p><strong>Map:</strong> ${t.map || 'N/A'}</p><p><strong>Starts:</strong> ${sTimeLoc}</p><hr><p><strong>Entry:</strong> ${t.entryFee > 0 ? `₹${t.entryFee}` : 'Free'}</p><p><strong>Prize:</strong> ₹${t.prizePool || 0}</p><p><strong>Per Kill:</strong> ₹${t.perKillPrize || 0}</p><p><strong>Max Players:</strong> ${t.maxPlayers > 0 ? t.maxPlayers : 'Unlimited'}</p><hr><h5>Rules:</h5><div style="white-space: pre-wrap; line-height: 1.6;">${fmtDesc}</div>${pDistHTML}`; } else elements.matchDetailsModalBody.innerHTML = '<p class="text-danger">Details not found.</p>'; } catch (e) { console.error("Details load failed:", e); elements.matchDetailsModalBody.innerHTML = '<p class="text-danger">Error loading details.</p>'; } }
-        async function handleIdPasswordClick(event) { if (!elements.idPasswordModalInstance) return; const tId = event.currentTarget.dataset.tournamentId; if (!tId) return; if (!currentUser || !userProfile?.joinedTournaments?.[tId]) { alert("Join the tournament first or refresh the page."); return; } elements.roomIdDisplay.innerHTML = '<span class="placeholder col-6"></span>'; elements.roomPasswordDisplay.innerHTML = '<span class="placeholder col-6"></span>'; elements.idPasswordModalInstance.show(); try { const tournamentRef = ref(db, `tournaments/${tId}`); const s = await get(tournamentRef); removePlaceholders(elements.roomIdDisplay.closest('.placeholder-glow')); removePlaceholders(elements.roomPasswordDisplay.closest('.placeholder-glow')); if (s.exists()) { const tournamentData = s.val(); if (tournamentData.showIdPass) { elements.roomIdDisplay.textContent = tournamentData.roomId || 'Not updated yet'; elements.roomPasswordDisplay.textContent = tournamentData.roomPassword || 'Not updated yet'; } else { elements.roomIdDisplay.textContent = 'Hidden by Admin'; elements.roomPasswordDisplay.textContent = 'Hidden by Admin'; } } else { elements.roomIdDisplay.textContent = 'Not Found'; elements.roomPasswordDisplay.textContent = 'Not Found'; } } catch (e) { console.error("ID/Pass fetch error:", e); removePlaceholders(elements.roomIdDisplay.closest('.placeholder-glow')); removePlaceholders(elements.roomPasswordDisplay.closest('.placeholder-glow')); elements.roomIdDisplay.textContent = 'Error'; elements.roomPasswordDisplay.textContent = 'Error'; alert("Error loading ID/Password."); } }
-        async function handlePolicyClick(event) { if (!elements.policyModalInstance) return; event.preventDefault(); const target = event.currentTarget; const policyType = target.dataset.policy; if (!policyType) return; let title = '', modalBodyContent = '<div class="text-center p-5"><div class="spinner-border spinner-border-sm"></div></div>'; elements.policyModalBody.innerHTML = modalBodyContent; switch (policyType) { case 'privacy': title = 'Privacy Policy'; modalBodyContent = appSettings.policyPrivacy || 'Content not available.'; break; case 'terms': title = 'Terms and Conditions'; modalBodyContent = appSettings.policyTerms || 'Content not available.'; break; case 'refund': title = 'Refund and Cancellation'; modalBodyContent = appSettings.policyRefund || 'Content not available.'; break; case 'fairPlay': title = 'Fair Play Policy'; modalBodyContent = appSettings.policyFairPlay || 'Content not available.'; break; case 'refer': title = 'Refer & Earn'; if (!currentUser) { alert("Login to view referral."); return; } const refCode = userProfile.referralCode || 'N/A'; const referralBonus = appSettings.referralBonus || 5; modalBodyContent = `<div class="text-center"><h4>Refer Friends!</h4><p class="text-secondary">Share code & earn!</p><div class="my-4 p-3" style="background: var(--primary-bg); border-radius: 8px;"><p class="small text-secondary mb-1">Your Code:</p><h3 class="text-accent referral-code" id="referralCodeDisplay">${refCode}</h3><div class="mt-3"><button class="btn btn-sm btn-custom btn-custom-secondary me-2 copy-btn" data-target="#referralCodeDisplay"><i class="bi bi-clipboard"></i> Copy</button><button class="btn btn-sm btn-custom btn-custom-secondary" id="shareReferralBtn"><i class="bi bi-share-fill"></i> Share</button></div></div><p class="mt-3 small text-secondary">Get ₹${referralBonus} when your friend joins using your code, and they get a signup bonus!</p></div>`; break; default: title = 'Info'; modalBodyContent = '<p>Content unavailable.</p>'; } elements.policyModalTitle.textContent = title; if (typeof modalBodyContent === 'string' && policyType !== 'refer') { elements.policyModalBody.innerHTML = modalBodyContent.replace(/\n/g, '<br>'); } else { elements.policyModalBody.innerHTML = modalBodyContent; } elements.policyModalInstance.show(); }
-        function setupRealtimeListeners(uid) { if (!uid || !db || !currentUser) return; detachAllDbListeners(); const uRef = ref(db, `users/${uid}`); const listFunc = onValue(uRef, (s) => { if (currentUser && currentUser.uid === uid) { if (s.exists()) { const oldProfile = userProfile; userProfile = s.val(); populateUserInfo(currentUser, userProfile); if (currentSectionId === 'home-section') loadMyContests(); if (currentSectionId === 'wallet-section') loadRecentTransactions(); if (oldProfile.lastCheckedNotifications !== userProfile.lastCheckedNotifications) { loadAndDisplayNotifications(); } } else { alert("Account data missing or deleted. Logging out."); logoutUser(); } } else { off(uRef, 'value', listFunc); } }, (e) => { console.error("Listener error (user profile):", e); }); dbListeners['userProfile'] = { path: `users/${uid}`, func: listFunc }; }
+        async function handleIdPasswordClick(event) { 
+            if (!elements.idPasswordModalInstance) return; 
+            const tId = event.currentTarget.dataset.tournamentId; 
+            if (!tId) return; 
+            if (!currentUser || !userProfile?.joinedTournaments?.[tId]) { 
+                alert("Join the tournament first or refresh the page."); 
+                return; 
+            } 
+            elements.roomIdDisplay.innerHTML = '<span class="placeholder col-6"></span>'; 
+            elements.roomPasswordDisplay.innerHTML = '<span class="placeholder col-6"></span>'; 
+            elements.idPasswordModalInstance.show(); 
+            try { 
+                const tournamentRef = ref(db, `tournaments/${tId}`); 
+                const s = await get(tournamentRef); 
+                removePlaceholders(elements.roomIdDisplay.closest('.placeholder-glow')); 
+                removePlaceholders(elements.roomPasswordDisplay.closest('.placeholder-glow')); 
+                if (s.exists()) { 
+                    const tournamentData = s.val(); 
+                    if (tournamentData.showIdPass) { 
+                        elements.roomIdDisplay.textContent = tournamentData.roomId || 'Not updated yet'; 
+                        elements.roomPasswordDisplay.textContent = tournamentData.roomPassword || 'Not updated yet'; 
+                        
+                        // SEND NOTIFICATION TO ALL JOINED PLAYERS WHEN ID/PASS IS VIEWED
+                        await sendIdPassNotificationToAllPlayers(tId, tournamentData);
+                    } else { 
+                        elements.roomIdDisplay.textContent = 'Hidden by Admin'; 
+                        elements.roomPasswordDisplay.textContent = 'Hidden by Admin'; 
+                    } 
+                } else { 
+                    elements.roomIdDisplay.textContent = 'Not Found'; 
+                    elements.roomPasswordDisplay.textContent = 'Not Found'; 
+                } 
+            } catch (e) { 
+                console.error("ID/Pass fetch error:", e); 
+                removePlaceholders(elements.roomIdDisplay.closest('.placeholder-glow')); 
+                removePlaceholders(elements.roomPasswordDisplay.closest('.placeholder-glow')); 
+                elements.roomIdDisplay.textContent = 'Error'; 
+                elements.roomPasswordDisplay.textContent = 'Error'; 
+                alert("Error loading ID/Password."); 
+            } 
+        }
+        
+        // NEW FUNCTION: Send notification to all players when ID/Pass is viewed
+        async function sendIdPassNotificationToAllPlayers(tournamentId, tournamentData) {
+            try {
+                const registeredPlayers = tournamentData.registeredPlayers || {};
+                const playerIds = Object.keys(registeredPlayers);
+                
+                for (const playerId of playerIds) {
+                    // Create notification for each player
+                    const notificationRef = push(ref(db, `users/${playerId}/notifications`));
+                    await set(notificationRef, {
+                        title: 'Tournament Room Details Available!',
+                        message: `Room ID & Password for "${tournamentData.name}" are now available. Check the tournament page.`,
+                        tournamentId: tournamentId,
+                        timestamp: serverTimestamp(),
+                        type: 'id_pass_available'
+                    });
+                }
+                console.log(`Sent ID/Pass notifications to ${playerIds.length} players`);
+            } catch (error) {
+                console.error("Error sending ID/Pass notifications:", error);
+            }
+        }
+        
+        // NEW FUNCTION: Send tournament result notification to winner
+        async function sendTournamentResultNotification(tournamentId, tournamentData, winnerId, winnerName, winningAmount) {
+            try {
+                // Notification to winner
+                const winnerNotificationRef = push(ref(db, `users/${winnerId}/notifications`));
+                await set(winnerNotificationRef, {
+                    title: '🎉 You Won!',
+                    message: `Congratulations! You won ₹${winningAmount} in "${tournamentData.name}"`,
+                    tournamentId: tournamentId,
+                    timestamp: serverTimestamp(),
+                    type: 'tournament_win',
+                    amount: winningAmount
+                });
+                
+                // Send notifications to all participants about results
+                const registeredPlayers = tournamentData.registeredPlayers || {};
+                const playerIds = Object.keys(registeredPlayers);
+                
+                for (const playerId of playerIds) {
+                    if (playerId !== winnerId) {
+                        const participantNotificationRef = push(ref(db, `users/${playerId}/notifications`));
+                        await set(participantNotificationRef, {
+                            title: 'Tournament Results',
+                            message: `Tournament "${tournamentData.name}" completed. Winner: ${winnerName} (₹${winningAmount})`,
+                            tournamentId: tournamentId,
+                            timestamp: serverTimestamp(),
+                            type: 'tournament_result'
+                        });
+                    }
+                }
+                console.log(`Sent result notifications to ${playerIds.length} players`);
+            } catch (error) {
+                console.error("Error sending tournament result notifications:", error);
+            }
+        }
+        
+        async function handlePolicyClick(event) { 
+            if (!elements.policyModalInstance) return; 
+            event.preventDefault(); 
+            const target = event.currentTarget; 
+            const policyType = target.dataset.policy; 
+            if (!policyType) return; 
+            let title = '', modalBodyContent = '<div class="text-center p-5"><div class="spinner-border spinner-border-sm"></div></div>'; 
+            elements.policyModalBody.innerHTML = modalBodyContent; 
+            switch (policyType) { 
+                case 'privacy': title = 'Privacy Policy'; modalBodyContent = appSettings.policyPrivacy || 'Content not available.'; break; 
+                case 'terms': title = 'Terms and Conditions'; modalBodyContent = appSettings.policyTerms || 'Content not available.'; break; 
+                case 'refund': title = 'Refund and Cancellation'; modalBodyContent = appSettings.policyRefund || 'Content not available.'; break; 
+                case 'fairPlay': title = 'Fair Play Policy'; modalBodyContent = appSettings.policyFairPlay || 'Content not available.'; break; 
+                case 'refer': title = 'Refer & Earn'; if (!currentUser) { alert("Login to view referral."); return; } const refCode = userProfile.referralCode || 'N/A'; const referralBonus = appSettings.referralBonus || 5; modalBodyContent = `<div class="text-center"><h4>Refer Friends!</h4><p class="text-secondary">Share code & earn!</p><div class="my-4 p-3" style="background: var(--primary-bg); border-radius: 8px;"><p class="small text-secondary mb-1">Your Code:</p><h3 class="text-accent referral-code" id="referralCodeDisplay">${refCode}</h3><div class="mt-3"><button class="btn btn-sm btn-custom btn-custom-secondary me-2 copy-btn" data-target="#referralCodeDisplay"><i class="bi bi-clipboard"></i> Copy</button><button class="btn btn-sm btn-custom btn-custom-secondary" id="shareReferralBtn"><i class="bi bi-share-fill"></i> Share</button></div></div><p class="mt-3 small text-secondary">Get ₹${referralBonus} when your friend joins using your code, and they get a signup bonus!</p></div>`; break; 
+                default: title = 'Info'; modalBodyContent = '<p>Content unavailable.</p>'; 
+            } 
+            elements.policyModalTitle.textContent = title; 
+            if (typeof modalBodyContent === 'string' && policyType !== 'refer') { 
+                elements.policyModalBody.innerHTML = modalBodyContent.replace(/\n/g, '<br>'); 
+            } else { 
+                elements.policyModalBody.innerHTML = modalBodyContent; 
+            } 
+            elements.policyModalInstance.show(); 
+        }
+        function setupRealtimeListeners(uid) { 
+            if (!uid || !db || !currentUser) return; 
+            detachAllDbListeners(); 
+            const uRef = ref(db, `users/${uid}`); 
+            const listFunc = onValue(uRef, (s) => { 
+                if (currentUser && currentUser.uid === uid) { 
+                    if (s.exists()) { 
+                        const oldProfile = userProfile; 
+                        userProfile = s.val(); 
+                        populateUserInfo(currentUser, userProfile); 
+                        if (currentSectionId === 'home-section') loadMyContests(); 
+                        if (currentSectionId === 'wallet-section') loadRecentTransactions(); 
+                        if (oldProfile.lastCheckedNotifications !== userProfile.lastCheckedNotifications) { 
+                            loadAndDisplayNotifications(); 
+                        } 
+                    } else { 
+                        alert("Account data missing or deleted. Logging out."); 
+                        logoutUser(); 
+                    } 
+                } else { 
+                    off(uRef, 'value', listFunc); 
+                } 
+            }, (e) => { console.error("Listener error (user profile):", e); }); 
+            dbListeners['userProfile'] = { path: `users/${uid}`, func: listFunc }; 
+            
+            // Listen for tournament result updates
+            const tournamentsRef = ref(db, 'tournaments');
+            const tournamentsListener = onValue(tournamentsRef, (snapshot) => {
+                if (!snapshot.exists()) return;
+                
+                const tournaments = snapshot.val();
+                Object.entries(tournaments).forEach(([tournamentId, tournamentData]) => {
+                    if (tournamentData.status === 'completed' && tournamentData.winner) {
+                        // Check if current user participated
+                        if (userProfile?.joinedTournaments?.[tournamentId]) {
+                            // Check if user is the winner
+                            if (tournamentData.winner.userId === currentUser.uid) {
+                                // User won this tournament
+                                console.log(`You won tournament: ${tournamentData.name}, Amount: ${tournamentData.winner.amount}`);
+                                
+                                // Send notification to winner
+                                sendTournamentResultNotification(
+                                    tournamentId, 
+                                    tournamentData, 
+                                    currentUser.uid, 
+                                    userProfile.displayName, 
+                                    tournamentData.winner.amount
+                                );
+                            }
+                        }
+                    }
+                });
+            });
+            dbListeners['tournaments'] = { path: 'tournaments', func: tournamentsListener };
+        }
         function detachAllDbListeners() { for (const k in dbListeners) { try { const { path, func } = dbListeners[k]; if (path && func) { off(ref(db, path), 'value', func); } } catch (e) { console.error(`Detach error ${k}:`, e); } } dbListeners = {}; }
         async function checkSecurityRules() { try { if (!currentUser) { } else if (elements.securityWarning) { elements.securityWarning.style.display = 'none'; } } catch (error) { if (elements.securityWarning) elements.securityWarning.style.display = 'none'; } }
         function startRechargeFlow() { if (!currentUser) { alert("Please login to add amount."); showSection('login-section'); return; } currentRechargeData = { amount: 0, paymentMethod: null, upiId: null }; elements.rechargeAmountInput.value = ''; elements.rechargeUtrInput.value = ''; clearStatusMessage(elements.rechargeStep1Status); clearStatusMessage(elements.rechargeStep2Status); clearStatusMessage(elements.rechargeStep3Status); elements.rechargeBalanceDisplay.textContent = (userProfile.balance || 0).toFixed(2); showSection('recharge-section', 'wallet-section'); goToRechargeStep(1); }
@@ -1813,13 +2164,22 @@ https:ct.ws/`;
             markNotificationsAsRead();
         }
 
+        // UPDATED CONTACT US FUNCTION WITH TELEGRAM LINK
         function handleContactUs() {
             if (!currentUser) { alert("Please login to contact us."); return; }
-            const contactNumber = appSettings.supportContact || '9389660753';
-            const userName = userProfile.displayName || "a user";
-            const message = `Hello Sir I Am ${userName} I need your help.`;
-            const whatsappUrl = `https://wa.me/${contactNumber}?text=${encodeURIComponent(message)}`;
-            window.open(whatsappUrl, '_blank');
+            
+            // Check if we have a Telegram link in settings
+            if (appSettings.telegramLink) {
+                // Open Telegram link
+                window.open(appSettings.telegramLink, '_blank');
+            } else {
+                // Fallback to WhatsApp
+                const contactNumber = appSettings.supportContact || '9389660753';
+                const userName = userProfile.displayName || "a user";
+                const message = `Hello Sir I Am ${userName} I need your help.`;
+                const whatsappUrl = `https://wa.me/${contactNumber}?text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+            }
         }
         
         async function loadMatchHistory() {
@@ -1962,10 +2322,69 @@ https:ct.ws/`;
             }
         }
 
+        // NEW AVATAR FUNCTIONS
+        function loadDefaultAvatars() {
+            const defaultAvatars = [
+                'https://i.pravatar.cc/150?img=1',
+                'https://i.pravatar.cc/150?img=2',
+                'https://i.pravatar.cc/150?img=3',
+                'https://i.pravatar.cc/150?img=4',
+                'https://i.pravatar.cc/150?img=5',
+                'https://i.pravatar.cc/150?img=6',
+                'https://ui-avatars.com/api/?name=Player&background=2c3e50&color=E2E8F0&bold=true&size=50',
+                'https://ui-avatars.com/api/?name=Gamer&background=3B82F6&color=ffffff&bold=true&size=50',
+                'https://ui-avatars.com/api/?name=Winner&background=FACC15&color=000000&bold=true&size=50'
+            ];
+            
+            elements.avatarOptionsContainer.innerHTML = '';
+            defaultAvatars.forEach((avatarUrl, index) => {
+                const avatarOption = document.createElement('img');
+                avatarOption.src = avatarUrl;
+                avatarOption.className = 'avatar-option';
+                avatarOption.dataset.avatarUrl = avatarUrl;
+                avatarOption.addEventListener('click', () => selectAvatar(avatarUrl, avatarOption));
+                elements.avatarOptionsContainer.appendChild(avatarOption);
+            });
+        }
+        
+        function selectAvatar(avatarUrl, element) {
+            selectedAvatarUrl = avatarUrl;
+            elements.avatarPreviewEl.src = avatarUrl;
+            // Remove selected class from all options
+            document.querySelectorAll('.avatar-option').forEach(opt => opt.classList.remove('selected'));
+            // Add selected class to clicked option
+            element.classList.add('selected');
+        }
+        
+        function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file.');
+                return;
+            }
+            
+            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                alert('Image size should be less than 5MB.');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                selectedAvatarUrl = e.target.result;
+                elements.avatarPreviewEl.src = selectedAvatarUrl;
+            };
+            reader.readAsDataURL(file);
+        }
+        
         function openEditNameModal() {
             if (!currentUser) return;
             elements.editNameInput.value = userProfile.displayName || '';
+            elements.avatarPreviewEl.src = userProfile.photoURL || elements.profileAvatar.src;
+            selectedAvatarUrl = userProfile.photoURL || null;
             clearStatusMessage(elements.editNameStatusMessage);
+            loadDefaultAvatars();
             elements.editNameModalInstance.show();
         }
 
@@ -1975,7 +2394,17 @@ https:ct.ws/`;
                 showStatusMessage(elements.editNameStatusMessage, "Name cannot be empty.", "warning");
                 return;
             }
-            if (newName === userProfile.displayName) {
+            
+            const changes = {};
+            if (newName !== userProfile.displayName) {
+                changes.displayName = newName;
+            }
+            
+            if (selectedAvatarUrl && selectedAvatarUrl !== userProfile.photoURL) {
+                changes.photoURL = selectedAvatarUrl;
+            }
+            
+            if (Object.keys(changes).length === 0) {
                 elements.editNameModalInstance.hide();
                 return;
             }
@@ -1983,12 +2412,21 @@ https:ct.ws/`;
             showLoader(true);
             const userRef = ref(db, `users/${currentUser.uid}`);
             try {
-                await update(userRef, { displayName: newName });
-                userProfile.displayName = newName; 
+                await update(userRef, changes);
+                
+                // Update local profile
+                if (changes.displayName) userProfile.displayName = changes.displayName;
+                if (changes.photoURL) userProfile.photoURL = changes.photoURL;
+                
+                // Update UI
                 populateUserInfo(currentUser, userProfile);
-                elements.editNameModalInstance.hide();
+                
+                showStatusMessage(elements.editNameStatusMessage, "Profile updated successfully!", "success", false);
+                setTimeout(() => {
+                    elements.editNameModalInstance.hide();
+                }, 1500);
             } catch (error) {
-                console.error("Error updating name:", error);
+                console.error("Error updating profile:", error);
                 showStatusMessage(elements.editNameStatusMessage, `Error: ${error.message}`, "danger", false);
             } finally {
                 showLoader(false);
@@ -2036,6 +2474,10 @@ https:ct.ws/`;
              elements.matchHistoryBtn?.addEventListener('click', loadMatchHistory);
              elements.chatForm?.addEventListener('submit', handleChatSubmit);
              elements.cancelReplyBtn?.addEventListener('click', cancelReply);
+             
+             // Avatar upload listeners
+             elements.avatarUploadBtn?.addEventListener('click', () => elements.avatarUploadInput.click());
+             elements.avatarUploadInput?.addEventListener('change', handleAvatarUpload);
 
              elements.chatMessagesEl.addEventListener('click', (e) => {
                  const bubble = e.target.closest('.chat-bubble');
@@ -2066,7 +2508,24 @@ https:ct.ws/`;
              });
 
 
-             document.body.addEventListener('click', (event) => { if (event.target.matches('.copy-btn') || event.target.closest('.copy-btn')) { const btn = event.target.closest('.copy-btn'); const targetSelector = btn.dataset.target; if (targetSelector) { copyToClipboard(targetSelector); } } if (event.target.matches('#shareReferralBtn') || event.target.closest('#shareReferralBtn')) { const cel = getElement('referralCodeDisplay'); if (cel) shareReferral(cel.textContent); } });
+             document.body.addEventListener('click', (event) => { 
+                 if (event.target.matches('.copy-btn') || event.target.closest('.copy-btn')) { 
+                     const btn = event.target.closest('.copy-btn'); 
+                     const targetSelector = btn.dataset.target; 
+                     if (targetSelector) { 
+                         const targetElement = querySel(targetSelector);
+                         if (targetElement) {
+                             navigator.clipboard.writeText(targetElement.textContent)
+                                 .then(() => alert('Copied!'))
+                                 .catch(err => alert('Failed to copy.'));
+                         }
+                     } 
+                 } 
+                 if (event.target.matches('#shareReferralBtn') || event.target.closest('#shareReferralBtn')) { 
+                     const cel = getElement('referralCodeDisplay'); 
+                     if (cel) shareReferral(cel.textContent); 
+                 } 
+             });
              console.log("Listeners initialized.");
          }
 
