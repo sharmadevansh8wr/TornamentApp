@@ -891,7 +891,7 @@
                     <button class="btn btn-custom btn-custom-primary btn-lg" id="goToStep3Btn">Process to Pay</button>
                 </div>
             </div>
-            <div id="recharge-step-3-payment" style="display: block;">
+            <div id="recharge-step-3-payment" style="display: none;">
                 <div class="text-center mb-4">
                     <p class="text-secondary mb-1">Recharge Amount</p>
                     <h2 class="fw-bold">₹<span id="rechargeFinalAmount">20</span></h2>
@@ -1275,7 +1275,7 @@
         
         function shareReferral(code) {
             if (!code || code === 'N/A') { alert('Referral code not available.'); return; }
-            const appName = appSettings.appName || "Bharat Esports";
+            const appName = appSettings.appName || "Battle Raja";
             const signupBonus = appSettings.signupBonus || 10;
             const referralBonus = appSettings.referralBonus || 5;
 
@@ -1299,7 +1299,7 @@ https:ct.ws/`;
                     text: shareText
                 }).catch((error) => console.log('Error sharing', error));
             } else {
-                const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+                const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
                 window.open(whatsappUrl, '_blank');
             }
         }
