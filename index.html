@@ -1274,12 +1274,15 @@
         function copyToClipboard(targetSelectorOrText, isText = false) { let textToCopy; if (isText) { textToCopy = targetSelectorOrText; } else { if (!targetSelectorOrText) { alert('Copy target not defined.'); return; } const targetElement = querySel(targetSelectorOrText); if (!targetElement) { alert('Element to copy from not found.'); return; } textToCopy = targetElement.textContent; } if (!textToCopy || textToCopy === 'N/A' || textToCopy.includes('placeholder')) { alert('Nothing to copy.'); return; } navigator.clipboard.writeText(textToCopy).then(() => alert('Copied!')).catch(err => { console.error('Failed to copy:', err); alert('Failed to copy.'); }); }
         
         function shareReferral(code) {
-            if (!code || code === 'N/A') { alert('Referral code not available.'); return; }
-            const appName = appSettings.appName || "Battle Raja";
-            const signupBonus = appSettings.signupBonus || 10;
-            const referralBonus = appSettings.referralBonus || 5;
+    if (!code || code === 'N/A') { 
+        alert('Referral code not available.'); 
+        return; 
+    }
+    const appName = appSettings.appName || "Battle Raja";
+    const signupBonus = appSettings.signupBonus || 10;
+    const referralBonus = appSettings.referralBonus || 5;
 
-            const shareText = 
+    const shareText = 
 `Free Fire tournament App🚨
 
 App Name - ${appName}
@@ -1291,17 +1294,40 @@ Fast Join Free
 Use Code - ( ${code} ) Free ₹${signupBonus} 😀
 
 Download 👇
-https:ct.ws/`;
+https://ct.ws/`;  // ✅ यहाँ ठीक किया
 
-            if (navigator.share) {
-                 navigator.share({
-                    title: `Join ${appName}!`,
-                    text: shareText
-                }).catch((error) => console.log('Error sharing', error));
-            } else {
-                const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
-                window.open(whatsappUrl, '_blank');
-            }
+    // 1. पहले Native Share API ट्राई करें
+    if (navigator.share) {
+        navigator.share({
+            title: `Join ${appName}!`,
+            text: shareText
+        }).catch((error) => console.log('Error sharing', error));
+    } 
+    // 2. फिर WhatsApp के लिए
+    else {
+        // Android/iOS डिटेक्ट करें
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+            // मोबाइल के लिए दोनों ऑप्शन
+            const whatsappAppUrl = `whatsapp://send?text=${encodeURIComponent(shareText)}`;
+            const whatsappWebUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+            
+            // पहले ऐप में खोलने की कोशिश करें
+            window.location.href = whatsappAppUrl;
+            
+            // Timeout अगर ऐप नहीं है
+            setTimeout(() => {
+                if (!document.hidden) {
+                    window.open(whatsappWebUrl, '_blank', 'noopener,noreferrer');
+                }
+            }, 1000);
+        } else {
+            // डेस्कटॉप/ब्राउज़र के लिए
+            const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+            window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+        }
+    }
         }
 
         function generateReferralCode(length = 8) { const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'; let result = ''; for (let i = 0; i < length; i++) result += chars.charAt(Math.floor(Math.random() * chars.length)); return result; }
