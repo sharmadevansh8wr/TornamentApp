@@ -527,18 +527,66 @@
             max-height: 400px;
             margin: 0 auto;
         }
+
+        /* Winners table styles */
+        .winners-table {
+            background: var(--primary-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        .winners-table table {
+            width: 100%;
+            margin: 0;
+        }
+        .winners-table th {
+            background: var(--secondary-bg);
+            color: var(--text-secondary);
+            font-weight: 600;
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .winners-table td {
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .winners-table tr:last-child td {
+            border-bottom: none;
+        }
+        .winners-table .winner-row {
+            background: rgba(16, 185, 129, 0.1);
+        }
+        .winners-table .loser-row {
+            background: rgba(239, 68, 68, 0.05);
+        }
+        .rank-badge {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            color: var(--primary-bg);
+            text-align: center;
+            line-height: 24px;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        .rank-1-badge { background: #FFD700; }
+        .rank-2-badge { background: #C0C0C0; }
+        .rank-3-badge { background: #CD7F32; }
     </style>
 </head>
 
 <body>
 
     <!-- Audio Elements for Background Music and Click Sound -->
-<audio id="backgroundMusic" loop>
-    <source src="audio/Free Fire _ Halloween Update _ Theme Song(MP3_160K).mp3" type="audio/mpeg">
-</audio>
-<audio id="clickSound">
-    <source src="audio/click.mp3" type="audio/mpeg">
-</audio>
+    <audio id="backgroundMusic" loop>
+        <source src="audio/Free Fire _ Halloween Update _ Theme Song(MP3_160K).mp3" type="audio/mpeg">
+    </audio>
+    <audio id="clickSound">
+        <source src="audio/click.mp3" type="audio/mpeg">
+    </audio>
 
      <!-- Firebase Security Rules Warning -->
     <div id="securityWarning" style="display: none;">
@@ -1071,7 +1119,7 @@
                         <button class="btn btn-custom btn-custom-secondary w-100">
                             <i class="bi bi-image me-2"></i> Choose Image from Gallery
                         </button>
-                        <input type="file" id="avatarUploadInput" accept="image/*"environment">
+                        <input type="file" id="avatarUploadInput" accept="image/*">
                     </div>
                     <p class="small text-secondary text-center">Supported formats: JPG, PNG, GIF. Max size: 2MB</p>
                     
@@ -1086,6 +1134,424 @@
         </div>
     </div>
 
+  // =========== TOURNAMENT WINNERS & NOTIFICATIONS ===========
+async function loadTournamentWinners(tournamentId) {
+    try {
+        const tournamentRef = ref(db, `tournaments/${tournamentId}`);
+        const snapshot = await get(tournamentRef);
+        
+        if (!snapshot.exists()) return null;
+        
+        const tournamentData = snapshot.val();
+        
+        const winners = tournamentData.winners || {};
+        const prizeDistribution = tournamentData.prizeDistribution || {};
+        const registeredPlayers = tournamentData.registeredPlayers || {};
+        
+        // सभी प्लेयर्स की डिटेल्ड जानकारी लोड करें
+        let allPlayers = [];
+        
+        // विजेताओं की लिस्ट बनाएं
+        let winnersList = [];
+        Object.entries(winners).forEach(([rank, playerData]) => {
+            winnersList.push({
+                rank: parseInt(rank),
+                playerId: playerData.playerId,
+                playerName: playerData.playerName || 'Unknown',
+                earnings: playerData.earnings || prizeDistribution[rank] || 0,
+                kills: playerData.kills || 0,
+                username: playerData.username || '',
+                gameUid: playerData.gameUid || ''
+            });
+            
+            allPlayers.push({
+                playerId: playerData.playerId,
+                playerName: playerData.playerName || 'Unknown',
+                isWinner: true,
+                rank: parseInt(rank),
+                earnings: playerData.earnings || prizeDistribution[rank] || 0,
+                kills: playerData.kills || 0
+            });
+        });
+        
+        // रजिस्टर्ड प्लेयर्स की जानकारी लोड करें
+        Object.entries(registeredPlayers).forEach(async ([playerId, playerData]) => {
+            const isWinner = winnersList.some(winner => winner.playerId === playerId);
+            if (!isWinner) {
+                // प्लेयर की जानकारी डीटेल में लोड करें
+                try {
+                    const userRef = ref(db, `users/${playerId}`);
+                    const userSnap = await get(userRef);
+                    const userData = userSnap.val();
+                    
+                    allPlayers.push({
+                        playerId: playerId,
+                        playerName: userData?.displayName || playerData.displayName || playerData.username || 'Unknown',
+                        isWinner: false,
+                        rank: null,
+                        earnings: 0,
+                        kills: 0,
+                        entryFee: tournamentData.entryFee || 0
+                    });
+                } catch (error) {
+                    console.error(`Error loading user ${playerId}:`, error);
+                    allPlayers.push({
+                        playerId: playerId,
+                        playerName: playerData.displayName || playerData.username || 'Unknown',
+                        isWinner: false,
+                        rank: null,
+                        earnings: 0,
+                        kills: 0,
+                        entryFee: tournamentData.entryFee || 0
+                    });
+                }
+            }
+        });
+        
+        return {
+            tournamentName: tournamentData.name || 'Tournament',
+            winners: winnersList,
+            allPlayers: allPlayers,
+            prizePool: tournamentData.prizePool || 0,
+            entryFee: tournamentData.entryFee || 0,
+            totalPlayers: Object.keys(registeredPlayers).length,
+            mode: tournamentData.mode || 'Solo'
+        };
+        
+    } catch (error) {
+        console.error("Error loading tournament winners:", error);
+        return null;
+    }
+}
+
+async function showTournamentWinnersModal(tournamentId) {
+    try {
+        const winnersData = await loadTournamentWinners(tournamentId);
+        
+        if (!winnersData) {
+            alert("Winners data not available yet.");
+            return;
+        }
+        
+        elements.winnersModalTitle.textContent = `${winnersData.tournamentName} - Results`;
+        
+        // विजेताओं का सेक्शन
+        let html = `
+            <div class="custom-card mb-4">
+                <h5 class="text-success"><i class="bi bi-trophy-fill"></i> Winners</h5>
+                <div class="winners-table">
+                    <table class="table table-dark table-sm">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Player</th>
+                                <th>Winnings</th>
+                                <th>Kills</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+        
+        // विजेताओं को सॉर्ट करें (रैंक के हिसाब से)
+        winnersData.winners.sort((a, b) => a.rank - b.rank);
+        
+        winnersData.winners.forEach(winner => {
+            let rankBadge = '';
+            let statusClass = '';
+            let statusText = '';
+            
+            if (winner.rank === 1) {
+                rankBadge = '<span class="rank-badge rank-1-badge">🥇</span>';
+                statusClass = 'text-success';
+                statusText = '1st Winner';
+            } else if (winner.rank === 2) {
+                rankBadge = '<span class="rank-badge rank-2-badge">🥈</span>';
+                statusClass = 'text-warning';
+                statusText = '2nd Winner';
+            } else if (winner.rank === 3) {
+                rankBadge = '<span class="rank-badge rank-3-badge">🥉</span>';
+                statusClass = 'text-info';
+                statusText = '3rd Winner';
+            } else {
+                rankBadge = `<span class="rank-badge">${winner.rank}</span>`;
+                statusClass = 'text-primary';
+                statusText = 'Winner';
+            }
+            
+            html += `
+                <tr class="winner-row">
+                    <td>${rankBadge}</td>
+                    <td>
+                        <strong>${winner.playerName}</strong>
+                        ${winner.username ? `<div class="small text-secondary">@${winner.username}</div>` : ''}
+                    </td>
+                    <td class="text-success fw-bold">₹${winner.earnings}</td>
+                    <td>${winner.kills}</td>
+                    <td><span class="${statusClass}">${statusText}</span></td>
+                </tr>`;
+        });
+        
+        html += `
+                        </tbody>
+                    </table>
+                </div>
+            </div>`;
+        
+        // सभी प्लेयर्स का सेक्शन
+        if (winnersData.allPlayers.length > 0) {
+            html += `
+                <div class="custom-card">
+                    <h5 class="text-secondary"><i class="bi bi-people-fill"></i> All Participants (${winnersData.totalPlayers})</h5>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="me-3">
+                                    <i class="bi bi-trophy-fill text-success"></i>
+                                </div>
+                                <div>
+                                    <div class="small text-secondary">Prize Pool</div>
+                                    <div class="fw-bold">₹${winnersData.prizePool}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-2">
+                                <div class="me-3">
+                                    <i class="bi bi-cash-coin text-warning"></i>
+                                </div>
+                                <div>
+                                    <div class="small text-secondary">Entry Fee</div>
+                                    <div class="fw-bold">₹${winnersData.entryFee}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-sm table-dark">
+                            <thead>
+                                <tr>
+                                    <th>Player</th>
+                                    <th>Result</th>
+                                    <th>Amount</th>
+                                    <th>Net Gain/Loss</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+            
+            // हर प्लेयर के लिए कैलकुलेशन
+            winnersData.allPlayers.forEach(player => {
+                let resultBadge = '';
+                let resultColor = '';
+                let netAmount = 0;
+                let amountText = '';
+                
+                if (player.isWinner) {
+                    resultBadge = `<span class="badge bg-success">Winner</span>`;
+                    resultColor = 'text-success';
+                    netAmount = player.earnings - winnersData.entryFee;
+                    amountText = `₹${player.earnings} (Prize)`;
+                    
+                    // विजेता के लिए डिटेल
+                    html += `
+                        <tr>
+                            <td>
+                                <strong class="${resultColor}">${player.playerName}</strong>
+                                <div class="small text-secondary">Rank: ${player.rank}</div>
+                            </td>
+                            <td>${resultBadge}</td>
+                            <td class="${resultColor} fw-bold">${amountText}</td>
+                            <td class="text-success fw-bold">
+                                <i class="bi bi-arrow-up-circle"></i> ₹${netAmount}
+                                <div class="small text-secondary">Entry: -₹${winnersData.entryFee}</div>
+                            </td>
+                        </tr>`;
+                } else {
+                    resultBadge = `<span class="badge bg-danger">Lost</span>`;
+                    resultColor = 'text-danger';
+                    netAmount = -winnersData.entryFee;
+                    amountText = 'No Prize';
+                    
+                    // हारने वाले के लिए डिटेल
+                    html += `
+                        <tr>
+                            <td>
+                                <strong>${player.playerName}</strong>
+                                <div class="small text-secondary">Participant</div>
+                            </td>
+                            <td>${resultBadge}</td>
+                            <td class="${resultColor}">${amountText}</td>
+                            <td class="text-danger fw-bold">
+                                <i class="bi bi-arrow-down-circle"></i> ₹${Math.abs(netAmount)} Loss
+                                <div class="small text-secondary">Entry: -₹${winnersData.entryFee}</div>
+                            </td>
+                        </tr>`;
+                }
+            });
+            
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- सारांश -->
+                    <div class="mt-3 p-3" style="background: var(--primary-bg); border-radius: 8px;">
+                        <h6 class="text-accent">Summary</h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="small text-secondary">Total Winners</div>
+                                <div class="fw-bold">${winnersData.winners.length}</div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="small text-secondary">Total Lost</div>
+                                <div class="fw-bold">${winnersData.totalPlayers - winnersData.winners.length}</div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="small text-secondary">Mode</div>
+                                <div class="fw-bold">${winnersData.mode}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        }
+        
+        elements.winnersModalBody.innerHTML = html;
+        elements.winnersModalInstance.show();
+        
+    } catch (error) {
+        console.error("Error showing tournament winners:", error);
+        alert("Could not load winners data.");
+    }
+}
+
+// उदाहरण के लिए: Admin Panel से डेटा स्ट्रक्चर
+/*
+Admin को Firebase Database में यह डेटा डालना होगा:
+
+"tournaments": {
+  "tournamentId1": {
+    "name": "Daily Free Fire Tournament",
+    "status": "completed",
+    "entryFee": 20,
+    "prizePool": 100,
+    "winners": {
+      "1": {
+        "playerId": "user123",
+        "playerName": "Amit",
+        "earnings": 60,
+        "kills": 8,
+        "username": "amit_gamer"
+      },
+      "2": {
+        "playerId": "user456",
+        "playerName": "Kartik",
+        "earnings": 40,
+        "kills": 6,
+        "username": "kartik_pro"
+      }
+    },
+    "registeredPlayers": {
+      "user123": {
+        "displayName": "Amit",
+        "username": "amit_gamer",
+        "gameUid": "1234567890"
+      },
+      "user456": {
+        "displayName": "Kartik",
+        "username": "kartik_pro",
+        "gameUid": "0987654321"
+      }
+    }
+  }
+}
+*/
+
+// विजेता नोटिफिकेशन भेजने का फ़ंक्शन
+async function sendDetailedWinnerNotifications(tournamentId, winnersData) {
+    try {
+        // विजेताओं को नोटिफिकेशन
+        winnersData.winners.forEach(async (winner) => {
+            const userNotificationRef = ref(db, `users/${winner.playerId}/notifications`);
+            
+            const notificationMessage = `
+🏆 CONGRATULATIONS! 🏆
+
+Tournament: ${winnersData.tournamentName}
+Your Rank: #${winner.rank}
+Prize Won: ₹${winner.earnings}
+Entry Fee: ₹${winnersData.entryFee}
+Net Gain: ₹${winner.earnings - winnersData.entryFee}
+
+Keep playing and earning! 💰
+            `;
+            
+            await push(userNotificationRef, {
+                title: `🎉 You Won ₹${winner.earnings}!`,
+                message: notificationMessage.trim(),
+                tournamentId: tournamentId,
+                timestamp: serverTimestamp(),
+                type: 'winner_detailed'
+            });
+            
+            // प्लेयर का मैच हिस्ट्री अपडेट
+            const matchHistoryRef = ref(db, `users/${winner.playerId}/matchHistory`);
+            await push(matchHistoryRef, {
+                tournamentId: tournamentId,
+                tournamentName: winnersData.tournamentName,
+                rank: winner.rank,
+                earnings: winner.earnings,
+                entryFee: winnersData.entryFee,
+                netGain: winner.earnings - winnersData.entryFee,
+                kills: winner.kills || 0,
+                date: serverTimestamp(),
+                result: 'Won'
+            });
+        });
+        
+        // हारने वालों को नोटिफिकेशन
+        const lostPlayers = winnersData.allPlayers.filter(p => !p.isWinner);
+        lostPlayers.forEach(async (loser) => {
+            const userNotificationRef = ref(db, `users/${loser.playerId}/notifications`);
+            
+            const notificationMessage = `
+📊 Tournament Result
+
+Tournament: ${winnersData.tournamentName}
+Status: Lost
+Entry Fee: ₹${winnersData.entryFee} (Deducted)
+Better luck next time! 🍀
+
+Check tournament results for details.
+            `;
+            
+            await push(userNotificationRef, {
+                title: `📝 Result: ${winnersData.tournamentName}`,
+                message: notificationMessage.trim(),
+                tournamentId: tournamentId,
+                timestamp: serverTimestamp(),
+                type: 'result_lost'
+            });
+            
+            // मैच हिस्ट्री अपडेट
+            const matchHistoryRef = ref(db, `users/${loser.playerId}/matchHistory`);
+            await push(matchHistoryRef, {
+                tournamentId: tournamentId,
+                tournamentName: winnersData.tournamentName,
+                rank: 'Lost',
+                earnings: 0,
+                entryFee: winnersData.entryFee,
+                netGain: -winnersData.entryFee,
+                kills: 0,
+                date: serverTimestamp(),
+                result: 'Lost'
+            });
+        });
+        
+    } catch (error) {
+        console.error("Error sending detailed notifications:", error);
+    }
+}
 
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
@@ -1168,7 +1634,6 @@
              notificationsModalInstance: getElement('notificationsModalEl') ? new bootstrap.Modal(getElement('notificationsModalEl')) : null,
              notificationsListEl: getElement('notificationsListEl'),
              notificationsEmptyMsgEl: getElement('notificationsEmptyMsgEl'),
-             // New Elements
              editNameBtnEl: getElement('editNameBtnEl'),
              editNameModalInstance: getElement('editNameModal') ? new bootstrap.Modal(getElement('editNameModal')) : null,
              editNameInput: getElement('editNameInput'),
@@ -1186,7 +1651,6 @@
              replyToNameEl: getElement('replyToNameEl'),
              replyToMessageEl: getElement('replyToMessageEl'),
              cancelReplyBtn: getElement('cancelReplyBtn'),
-             // Avatar Edit Elements
              editAvatarBtnEl: getElement('editAvatarBtnEl'),
              editAvatarModalInstance: getElement('editAvatarModal') ? new bootstrap.Modal(getElement('editAvatarModal')) : null,
              avatarPreviewImg: getElement('avatarPreviewImg'),
@@ -1194,6 +1658,9 @@
              avatarUploadInput: getElement('avatarUploadInput'),
              avatarStatusMessage: getElement('avatarStatusMessage'),
              saveAvatarBtn: getElement('saveAvatarBtn'),
+             winnersModalInstance: getElement('winnersModal') ? new bootstrap.Modal(getElement('winnersModal')) : null,
+             winnersModalTitle: getElement('winnersModalTitle'),
+             winnersModalBody: getElement('winnersModalBody'),
          };
 
         let currentUser = null; let userProfile = {}; let currentSectionId = 'login-section'; let dbListeners = {};
@@ -1201,9 +1668,9 @@
         let tempReferralCode = null;
         let currentRechargeData = { amount: 0, paymentMethod: null, upiId: null };
         let currentChatListener = null; 
-        let currentReply = null; // Holds data for the message being replied to
-        let selectedAvatarUrl = null; // Holds the selected avatar URL
-        let selectedAvatarFile = null; // Holds the selected file from gallery
+        let currentReply = null;
+        let selectedAvatarUrl = null;
+        let selectedAvatarFile = null;
 
         const showLoader = (show) => { if (elements.globalLoader) elements.globalLoader.style.display = show ? 'flex' : 'none'; };
         function showStatusMessage(element, message, type = 'danger', autohide = true) { if (!element) return; element.innerHTML = message; element.className = `alert alert-${type} mt-3`; element.style.display = 'block'; element.setAttribute('role', 'alert'); if (autohide) { setTimeout(() => { if (element.innerHTML === message) element.style.display = 'none'; }, 5000); } }
@@ -1407,7 +1874,7 @@ https:ct.ws/`;
                         minWithdraw: 50, 
                         signupBonus: 10, 
                         referralBonus: 5, 
-                        supportContact: '9389660753', 
+                        supportContact: 'DARK_DEVIL_BHAI', 
                         upiDetails: 'devansh7999@ybl',
                         qrCodeUrl: 'https://i.supaimg.com/788284bc-d3e0-4116-b579-89d26ceded68.png'
                     };
@@ -1418,7 +1885,7 @@ https:ct.ws/`;
                     minWithdraw: 50, 
                     signupBonus: 10, 
                     referralBonus: 5, 
-                    supportContact: '9389660753',
+                    supportContact: 'DARK_DEVIL_BHAI',
                     upiDetails: 'devansh7999@ybl',
                     qrCodeUrl: 'https://i.supaimg.com/788284bc-d3e0-4116-b579-89d26ceded68.png'
                 };
@@ -1499,7 +1966,7 @@ https:ct.ws/`;
                     chatBtnHtml = `<button class="btn btn-custom btn-custom-secondary btn-sm btn-chat" data-tournament-id="${tId}" data-tournament-name="${t.name || 'Tournament'}"><i class="bi bi-chat-dots-fill"></i> Chat</button>`
                 }
             } else if (canJ) {
-                const mode = (t.mode || 'Solo').toLowerCase(); // Standardize to lowercase
+                const mode = (t.mode || 'Solo').toLowerCase();
                 joinBtnHtml = `<button class="btn btn-custom btn-sm btn-custom-accent btn-join" data-tournament-id="${tId}" data-fee="${eFee}" data-mode="${mode}">₹${eFee} Join <i class="bi bi-arrow-right-short"></i></button>`;
             } else {
                 let disR = t.status !== 'upcoming' ? t.status?.toUpperCase() : (isF ? 'Full' : 'Closed');
@@ -1525,6 +1992,7 @@ https:ct.ws/`;
                         <button class="btn btn-custom btn-custom-secondary btn-sm btn-details" data-tournament-id="${tId}">Details</button>
                         ${chatBtnHtml}
                         ${joinBtnHtml}
+                        ${t.status === 'completed' ? `<button class="btn btn-custom btn-sm btn-custom-secondary btn-winners" data-tournament-id="${tId}"><i class="bi bi-trophy-fill"></i> Winners</button>` : ''}
                     </div>
                     ${idPassBtn}
                 </div>`;
@@ -1533,6 +2001,7 @@ https:ct.ws/`;
             const dBtn = card.querySelector('.btn-details'); if (dBtn) dBtn.addEventListener('click', handleMatchDetailsClick);
             const ipBtn = card.querySelector('.btn-idpass'); if (ipBtn) ipBtn.addEventListener('click', handleIdPasswordClick);
             const cBtn = card.querySelector('.btn-chat'); if (cBtn) cBtn.addEventListener('click', (e) => openTournamentChat(e.currentTarget.dataset.tournamentId, e.currentTarget.dataset.tournamentName));
+            const wBtn = card.querySelector('.btn-winners'); if (wBtn) wBtn.addEventListener('click', handleViewWinnersClick);
             return card;
         }
 
@@ -1617,21 +2086,18 @@ https:ct.ws/`;
         
             const uRef = ref(db, `users/${currentUser.uid}`);
             try {
-                // Use a transaction to safely deduct the winning cash
                 const txResult = await runTransaction(uRef, (currentProfile) => {
                     if (currentProfile) {
                         if ((currentProfile.winningCash || 0) >= amt) {
                             currentProfile.winningCash -= amt;
-                            // Also update total balance
                             currentProfile.balance = (currentProfile.balance || 0) - amt;
                             return currentProfile;
                         }
                     }
-                    return; // Abort transaction if profile doesn't exist or insufficient funds
+                    return;
                 });
         
                 if (txResult.committed) {
-                    // If balance was updated successfully, create the withdrawal request
                     const wrRef = ref(db, 'withdrawals');
                     const newReq = {
                         userId: currentUser.uid,
@@ -1650,7 +2116,6 @@ https:ct.ws/`;
                         withdrawalId: newWithdrawalRef.key
                     });
                     
-                    // Manually update the local userProfile object for immediate UI feedback
                     userProfile.winningCash = txResult.snapshot.val().winningCash;
                     userProfile.balance = txResult.snapshot.val().balance;
                     populateUserInfo(currentUser, userProfile);
@@ -1664,8 +2129,6 @@ https:ct.ws/`;
             } catch (e) {
                 console.error("Withdraw error:", e);
                 showStatusMessage(elements.withdrawStatusMessage, `Error: ${e.message}`, 'danger');
-                // Since the transaction might have failed, we don't need a complex refund logic here.
-                // The transaction itself is atomic.
             } finally {
                 elements.submitWithdrawRequestBtn.disabled = false;
                 elements.submitWithdrawRequestBtn.innerHTML = 'Submit Request';
@@ -1722,7 +2185,7 @@ https:ct.ws/`;
             
             clearStatusMessage(elements.joinTournamentStatusMessage);
             const teammateContainer = elements.joinTeammateFieldsContainer;
-            teammateContainer.innerHTML = ''; // Clear previous fields
+            teammateContainer.innerHTML = '';
 
             let teamSize = 1;
             let teammatesToEnter = 0;
@@ -1737,7 +2200,6 @@ https:ct.ws/`;
             const totalFee = fee * teamSize;
             elements.joinFeeDisplayEl.textContent = `₹${totalFee.toFixed(2)} ${teamSize > 1 ? `(₹${fee} per player for ${mode.charAt(0).toUpperCase() + mode.slice(1)})` : ''}`;
 
-            // Dynamically create teammate input fields
             for (let i = 1; i <= teammatesToEnter; i++) {
                 const teammateHtml = `
                     <hr>
@@ -1768,7 +2230,6 @@ https:ct.ws/`;
              
              const totalFee = singleFee * teamSize;
 
-             // Validate Player 1 (user)
              const username = elements.joinUsernameInput.value.trim();
              const gameUid = elements.joinGameUidInput.value.trim();
              if (!username || !gameUid) { 
@@ -1776,7 +2237,6 @@ https:ct.ws/`;
                  return; 
              }
 
-             // Validate Teammates
              const teammates = [];
              for(let i = 1; i < teamSize; i++) {
                 const teammateUsernameEl = getElement(`joinTeammateUsernameInput${i}`);
@@ -1829,7 +2289,7 @@ https:ct.ws/`;
                      joinedAt: serverTimestamp(),
                      username: username,
                      gameUid: gameUid,
-                     teammates: teammates // Store array of teammates
+                     teammates: teammates
                  };
 
                  const updates = {};
@@ -1948,12 +2408,15 @@ https:ct.ws/`;
         }
 
         function handleContactUs() {
-            if (!currentUser) { alert("Please login to contact us."); return; }
-            const contactNumber = appSettings.supportContact || '@DARK_DEVIL_BHAI';
+            if (!currentUser) { 
+                alert("Please login to contact us."); 
+                return; 
+            }
+            const contactNumber = appSettings.supportContact || 'DARK_DEVIL_BHAI';
             const userName = userProfile.displayName || "a user";
             const message = `Hello Sir I Am ${userName} I need your help.`;
-            const whatsappUrl = `https://t.me/${contactNumber}?text=${encodeURIComponent(message)}`;
-            window.open(whatsappUrl, '_blank');
+            const telegramUrl = `https://t.me/${contactNumber}`;
+            window.open(telegramUrl, '_blank');
         }
         
         async function loadMatchHistory() {
@@ -2133,26 +2596,20 @@ https:ct.ws/`;
         function openEditAvatarModal() {
             if (!currentUser) return;
             
-            // Reset selection
             selectedAvatarUrl = userProfile.photoURL || elements.profileAvatar.src;
             selectedAvatarFile = null;
             
-            // Update preview
             elements.avatarPreviewImg.src = selectedAvatarUrl;
             
-            // Clear status message
             clearStatusMessage(elements.avatarStatusMessage);
             
-            // Load default avatars
             loadDefaultAvatars();
             
-            // Show modal
             elements.editAvatarModalInstance.show();
         }
         
         async function loadDefaultAvatars() {
             try {
-                // Default avatar URLs (you can customize these)
                 const defaultAvatars = [
                     'https://ui-avatars.com/api/?name=User&background=2c3e50&color=E2E8F0&bold=true&size=150',
                     'https://ui-avatars.com/api/?name=Player&background=3B82F6&color=fff&bold=true&size=150',
@@ -2162,7 +2619,6 @@ https:ct.ws/`;
                     'https://ui-avatars.com/api/?name=Pro&background=8B5CF6&color=fff&bold=true&size=150'
                 ];
                 
-                // You can also load avatars from Firebase storage or database
                 const avatarsRef = ref(db, 'defaultAvatars');
                 const snapshot = await get(avatarsRef);
                 let avatarUrls = defaultAvatars;
@@ -2172,7 +2628,6 @@ https:ct.ws/`;
                     avatarUrls = Object.values(dbAvatars).map(avatar => avatar.url);
                 }
                 
-                // Display avatars
                 elements.defaultAvatarsContainer.innerHTML = '';
                 avatarUrls.forEach((url, index) => {
                     const img = document.createElement('img');
@@ -2181,18 +2636,15 @@ https:ct.ws/`;
                     img.alt = `Default Avatar ${index + 1}`;
                     img.dataset.url = url;
                     
-                    // Check if this is the current avatar
                     if (url === selectedAvatarUrl) {
                         img.classList.add('selected');
                     }
                     
                     img.addEventListener('click', () => {
-                        // Remove selection from all avatars
                         elements.defaultAvatarsContainer.querySelectorAll('.avatar-option').forEach(opt => {
                             opt.classList.remove('selected');
                         });
                         
-                        // Select this avatar
                         img.classList.add('selected');
                         selectedAvatarUrl = url;
                         selectedAvatarFile = null;
@@ -2213,28 +2665,24 @@ https:ct.ws/`;
             
             const file = fileInput.files[0];
             
-            // Validate file type
             const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
             if (!validTypes.includes(file.type)) {
                 showStatusMessage(elements.avatarStatusMessage, 'Please select a valid image file (JPG, PNG, GIF, WEBP).', 'warning');
                 return;
             }
             
-            // Validate file size (2MB)
-            const maxSize = 2 * 1024 * 1024; // 2MB
+            const maxSize = 2 * 1024 * 1024;
             if (file.size > maxSize) {
                 showStatusMessage(elements.avatarStatusMessage, 'Image size should be less than 2MB.', 'warning');
                 return;
             }
             
-            // Create preview
             const reader = new FileReader();
             reader.onload = function(e) {
                 selectedAvatarUrl = e.target.result;
                 selectedAvatarFile = file;
                 elements.avatarPreviewImg.src = selectedAvatarUrl;
                 
-                // Deselect all default avatars
                 elements.defaultAvatarsContainer.querySelectorAll('.avatar-option').forEach(opt => {
                     opt.classList.remove('selected');
                 });
@@ -2249,7 +2697,6 @@ https:ct.ws/`;
             
             clearStatusMessage(elements.avatarStatusMessage);
             
-            // If no change, just close modal
             if (!selectedAvatarFile && selectedAvatarUrl === (userProfile.photoURL || elements.profileAvatar.src)) {
                 elements.editAvatarModalInstance.hide();
                 return;
@@ -2262,29 +2709,22 @@ https:ct.ws/`;
             try {
                 let finalAvatarUrl = selectedAvatarUrl;
                 
-                // If a file was uploaded, upload it to Firebase Storage
                 if (selectedAvatarFile) {
-                    // Create a unique filename
                     const timestamp = Date.now();
                     const fileExt = selectedAvatarFile.name.split('.').pop();
                     const fileName = `avatars/${currentUser.uid}_${timestamp}.${fileExt}`;
                     
-                    // Upload to Firebase Storage
                     const storageReference = storageRef(storage, fileName);
                     await uploadBytes(storageReference, selectedAvatarFile);
                     
-                    // Get download URL
                     finalAvatarUrl = await getDownloadURL(storageReference);
                 }
                 
-                // Update user profile in Firebase Database
                 const userRef = ref(db, `users/${currentUser.uid}`);
                 await update(userRef, { photoURL: finalAvatarUrl });
                 
-                // Update local user profile
                 userProfile.photoURL = finalAvatarUrl;
                 
-                // Update UI
                 elements.profileAvatar.src = finalAvatarUrl;
                 
                 showStatusMessage(elements.avatarStatusMessage, 'Avatar updated successfully!', 'success', false);
@@ -2302,6 +2742,298 @@ https:ct.ws/`;
                 elements.saveAvatarBtn.innerHTML = 'Save Changes';
                 showLoader(false);
             }
+        }
+
+        // =========== TOURNAMENT WINNERS & NOTIFICATIONS ===========
+        async function loadTournamentWinners(tournamentId) {
+            try {
+                const tournamentRef = ref(db, `tournaments/${tournamentId}`);
+                const snapshot = await get(tournamentRef);
+                
+                if (!snapshot.exists()) return null;
+                
+                const tournamentData = snapshot.val();
+                
+                const winners = tournamentData.winners || {};
+                const prizeDistribution = tournamentData.prizeDistribution || {};
+                
+                const registeredPlayers = tournamentData.registeredPlayers || {};
+                
+                let winnersList = [];
+                Object.entries(winners).forEach(([rank, playerData]) => {
+                    winnersList.push({
+                        rank: rank,
+                        playerId: playerData.playerId,
+                        playerName: playerData.playerName || 'Unknown',
+                        earnings: playerData.earnings || prizeDistribution[rank] || 0,
+                        kills: playerData.kills || 0
+                    });
+                });
+                
+                let losersList = [];
+                Object.entries(registeredPlayers).forEach(([playerId, playerData]) => {
+                    const isWinner = winnersList.some(winner => winner.playerId === playerId);
+                    if (!isWinner) {
+                        losersList.push({
+                            playerId: playerId,
+                            playerName: playerData.displayName || playerData.username || 'Unknown',
+                            status: 'Lost'
+                        });
+                    }
+                });
+                
+                return {
+                    tournamentName: tournamentData.name || 'Tournament',
+                    winners: winnersList,
+                    losers: losersList,
+                    prizePool: tournamentData.prizePool || 0
+                };
+                
+            } catch (error) {
+                console.error("Error loading tournament winners:", error);
+                return null;
+            }
+        }
+
+        async function sendIdPasswordNotification(tournamentId, roomId, roomPassword) {
+            try {
+                const tournamentRef = ref(db, `tournaments/${tournamentId}`);
+                const snapshot = await get(tournamentRef);
+                
+                if (!snapshot.exists()) return;
+                
+                const tournamentData = snapshot.val();
+                const registeredPlayers = tournamentData.registeredPlayers || {};
+                
+                const tournamentName = tournamentData.name || 'Tournament';
+                
+                Object.entries(registeredPlayers).forEach(async ([playerId, playerData]) => {
+                    const userNotificationRef = ref(db, `users/${playerId}/notifications`);
+                    
+                    const notification = {
+                        title: `ID/Password for ${tournamentName}`,
+                        message: `Room ID: ${roomId}\nPassword: ${roomPassword}\nTournament starts soon!`,
+                        tournamentId: tournamentId,
+                        timestamp: serverTimestamp(),
+                        type: 'id_password'
+                    };
+                    
+                    await push(userNotificationRef, notification);
+                    
+                    console.log(`Notification sent to ${playerId} for tournament ${tournamentId}`);
+                });
+                
+                const globalNotificationRef = ref(db, 'notifications');
+                await push(globalNotificationRef, {
+                    title: `ID/Password Released for ${tournamentName}`,
+                    message: `Room details have been released for ${tournamentName}. Check your notifications.`,
+                    tournamentId: tournamentId,
+                    timestamp: serverTimestamp(),
+                    type: 'id_password_global'
+                });
+                
+                console.log(`ID/Password notifications sent for tournament ${tournamentId}`);
+                
+            } catch (error) {
+                console.error("Error sending ID/Password notifications:", error);
+            }
+        }
+
+        async function sendWinnerNotifications(tournamentId, winnersData) {
+            try {
+                winnersData.winners.forEach(async (winner) => {
+                    const userNotificationRef = ref(db, `users/${winner.playerId}/notifications`);
+                    
+                    await push(userNotificationRef, {
+                        title: `🏆 You Won in ${winnersData.tournamentName}!`,
+                        message: `Congratulations! You got Rank #${winner.rank} and won ₹${winner.earnings}. Kills: ${winner.kills}`,
+                        tournamentId: tournamentId,
+                        timestamp: serverTimestamp(),
+                        type: 'winner'
+                    });
+                    
+                    const matchHistoryRef = ref(db, `users/${winner.playerId}/matchHistory`);
+                    await push(matchHistoryRef, {
+                        tournamentId: tournamentId,
+                        tournamentName: winnersData.tournamentName,
+                        rank: winner.rank,
+                        earnings: winner.earnings,
+                        kills: winner.kills,
+                        date: serverTimestamp()
+                    });
+                    
+                    const userRef = ref(db, `users/${winner.playerId}`);
+                    await runTransaction(userRef, (user) => {
+                        if (user) {
+                            user.winningCash = (user.winningCash || 0) + winner.earnings;
+                            user.balance = (user.balance || 0) + winner.earnings;
+                            user.totalEarnings = (user.totalEarnings || 0) + winner.earnings;
+                            user.wonMatches = (user.wonMatches || 0) + 1;
+                            
+                            user.leaderboardDisplayEarnings = (user.leaderboardDisplayEarnings || 0) + winner.earnings;
+                            
+                            return user;
+                        }
+                        return null;
+                    });
+                });
+                
+                winnersData.losers.forEach(async (loser) => {
+                    const userNotificationRef = ref(db, `users/${loser.playerId}/notifications`);
+                    
+                    await push(userNotificationRef, {
+                        title: `📊 Result for ${winnersData.tournamentName}`,
+                        message: `You didn't win this time. Better luck next time!`,
+                        tournamentId: tournamentId,
+                        timestamp: serverTimestamp(),
+                        type: 'result'
+                    });
+                    
+                    const matchHistoryRef = ref(db, `users/${loser.playerId}/matchHistory`);
+                    await push(matchHistoryRef, {
+                        tournamentId: tournamentId,
+                        tournamentName: winnersData.tournamentName,
+                        rank: 'Lost',
+                        earnings: 0,
+                        kills: 0,
+                        date: serverTimestamp()
+                    });
+                    
+                    const userRef = ref(db, `users/${loser.playerId}`);
+                    await runTransaction(userRef, (user) => {
+                        if (user) {
+                            user.totalMatches = (user.totalMatches || 0) + 1;
+                            return user;
+                        }
+                        return null;
+                    });
+                });
+                
+                console.log(`Winner notifications sent for tournament ${tournamentId}`);
+                
+            } catch (error) {
+                console.error("Error sending winner notifications:", error);
+            }
+        }
+
+        async function showTournamentWinnersModal(tournamentId) {
+            try {
+                const winnersData = await loadTournamentWinners(tournamentId);
+                
+                if (!winnersData) {
+                    alert("Winners data not available yet.");
+                    return;
+                }
+                
+                elements.winnersModalTitle.textContent = `${winnersData.tournamentName} - Results`;
+                
+                let html = `
+                    <div class="custom-card mb-3">
+                        <h5 class="text-success">🏆 Winners 🏆</h5>
+                        <div class="winners-table">
+                            <table class="table table-dark table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Player</th>
+                                        <th>Earnings</th>
+                                        <th>Kills</th>
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+                
+                winnersData.winners.forEach(winner => {
+                    let rankBadge = '';
+                    if (winner.rank == 1) rankBadge = '<span class="rank-badge rank-1-badge">1</span>';
+                    else if (winner.rank == 2) rankBadge = '<span class="rank-badge rank-2-badge">2</span>';
+                    else if (winner.rank == 3) rankBadge = '<span class="rank-badge rank-3-badge">3</span>';
+                    else rankBadge = `<span class="rank-badge">${winner.rank}</span>`;
+                    
+                    html += `
+                        <tr class="winner-row">
+                            <td>${rankBadge}</td>
+                            <td>${winner.playerName}</td>
+                            <td class="text-success">₹${winner.earnings}</td>
+                            <td>${winner.kills}</td>
+                        </tr>`;
+                });
+                
+                html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>`;
+                
+                if (winnersData.losers.length > 0) {
+                    html += `
+                        <div class="custom-card">
+                            <h5 class="text-secondary">📊 Tournament Statistics</h5>
+                            <p class="small text-secondary">Total Participants: ${winnersData.winners.length + winnersData.losers.length}</p>
+                            <p class="small text-secondary">Prize Pool: ₹${winnersData.prizePool}</p>
+                            <p class="small text-secondary">Winners: ${winnersData.winners.length}</p>
+                        </div>`;
+                }
+                
+                elements.winnersModalBody.innerHTML = html;
+                elements.winnersModalInstance.show();
+                
+            } catch (error) {
+                console.error("Error showing tournament winners:", error);
+                alert("Could not load winners data.");
+            }
+        }
+
+        function handleViewWinnersClick(event) {
+            const tournamentId = event.currentTarget.dataset.tournamentId;
+            if (tournamentId) {
+                showTournamentWinnersModal(tournamentId);
+            }
+        }
+
+        function setupIdPasswordListener() {
+            const tournamentsRef = ref(db, 'tournaments');
+            
+            onValue(tournamentsRef, (snapshot) => {
+                if (!snapshot.exists()) return;
+                
+                const tournaments = snapshot.val();
+                
+                Object.entries(tournaments).forEach(([tournamentId, tournamentData]) => {
+                    if (tournamentData.roomId && tournamentData.roomPassword && tournamentData.showIdPass) {
+                        const notificationSent = tournamentData.idPasswordNotified || false;
+                        
+                        if (!notificationSent) {
+                            sendIdPasswordNotification(
+                                tournamentId, 
+                                tournamentData.roomId, 
+                                tournamentData.roomPassword
+                            );
+                            
+                            update(ref(db, `tournaments/${tournamentId}`), {
+                                idPasswordNotified: true
+                            });
+                        }
+                    }
+                    
+                    if (tournamentData.status === 'completed' && tournamentData.winners) {
+                        const winnersNotified = tournamentData.winnersNotified || false;
+                        
+                        if (!winnersNotified) {
+                            loadTournamentWinners(tournamentId).then(winnersData => {
+                                if (winnersData) {
+                                    sendWinnerNotifications(tournamentId, winnersData);
+                                    
+                                    update(ref(db, `tournaments/${tournamentId}`), {
+                                        winnersNotified: true
+                                    });
+                                }
+                            });
+                        }
+                    }
+                });
+            }, {
+                onlyOnce: false
+            });
         }
 
         function initializeEventListeners() {
@@ -2346,7 +3078,6 @@ https:ct.ws/`;
              elements.chatForm?.addEventListener('submit', handleChatSubmit);
              elements.cancelReplyBtn?.addEventListener('click', cancelReply);
              
-             // Avatar edit listeners
              elements.editAvatarBtnEl?.addEventListener('click', openEditAvatarModal);
              elements.profileAvatar?.addEventListener('click', openEditAvatarModal);
              elements.avatarUploadInput?.addEventListener('change', handleAvatarUpload);
@@ -2380,8 +3111,19 @@ https:ct.ws/`;
                  cancelReply();
              });
 
-
-             document.body.addEventListener('click', (event) => { if (event.target.matches('.copy-btn') || event.target.closest('.copy-btn')) { const btn = event.target.closest('.copy-btn'); const targetSelector = btn.dataset.target; if (targetSelector) { copyToClipboard(targetSelector); } } if (event.target.matches('#shareReferralBtn') || event.target.closest('#shareReferralBtn')) { const cel = getElement('referralCodeDisplay'); if (cel) shareReferral(cel.textContent); } });
+             document.body.addEventListener('click', (event) => { 
+                 if (event.target.matches('.copy-btn') || event.target.closest('.copy-btn')) { 
+                     const btn = event.target.closest('.copy-btn'); 
+                     const targetSelector = btn.dataset.target; 
+                     if (targetSelector) { 
+                         copyToClipboard(targetSelector); 
+                     } 
+                 } 
+                 if (event.target.matches('#shareReferralBtn') || event.target.closest('#shareReferralBtn')) { 
+                     const cel = getElement('referralCodeDisplay'); 
+                     if (cel) shareReferral(cel.textContent); 
+                 } 
+             });
              console.log("Listeners initialized.");
          }
 
@@ -2392,6 +3134,7 @@ https:ct.ws/`;
              loadAppSettings()
                  .then(() => {
                      initializeEventListeners();
+                     setupIdPasswordListener();
                      updateGlobalUI(false);
                      onAuthStateChanged(auth, handleAuthStateChange);
                  })
@@ -2399,6 +3142,7 @@ https:ct.ws/`;
                      console.error("CRITICAL: Initial settings load failed:", err);
                      alert("Error loading essential app settings. Please try again later.");
                      initializeEventListeners();
+                     setupIdPasswordListener();
                      updateGlobalUI(false);
                      onAuthStateChanged(auth, handleAuthStateChange);
                  });
@@ -2437,7 +3181,7 @@ https:ct.ws/`;
             }
         }
         initializeAudio();
-</script>
+    </script>
 
 </body>
 </html>
